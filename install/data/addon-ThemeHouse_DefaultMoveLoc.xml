@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="ThemeHouse_DefaultMoveLoc" title="[⌂] Default Move Forum" version_string="1.0.0" version_id="1447261019" url="http://xf.themehouse.io" install_callback_class="ThemeHouse_Install" install_callback_method="install" uninstall_callback_class="ThemeHouse_Install" uninstall_callback_method="uninstall">
+  <admin_navigation/>
+  <admin_permissions/>
+  <admin_style_properties/>
+  <admin_templates/>
+  <admin_template_modifications/>
+  <code_events/>
+  <code_event_listeners>
+    <listener event_id="controller_pre_dispatch" execute_order="10" callback_class="ThemeHouse_Listener_ControllerPreDispatch" callback_method="controllerPreDispatch" active="1" hint="" description=""/>
+    <listener event_id="file_health_check" execute_order="10" callback_class="ThemeHouse_DefaultMoveLoc_Listener_FileHealthCheck" callback_method="fileHealthCheck" active="1" hint="" description=""/>
+    <listener event_id="init_dependencies" execute_order="10" callback_class="ThemeHouse_Listener_InitDependencies" callback_method="initDependencies" active="1" hint="" description=""/>
+  </code_event_listeners>
+  <cron/>
+  <email_templates/>
+  <email_template_modifications/>
+  <optiongroups>
+    <group group_id="th_defaultMoveForum" display_order="2000" debug_only="0"/>
+    <option option_id="th_defaultMoveForum_forceOption" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>0</default_value>
+      <edit_format_params/>
+      <sub_options/>
+      <relation group_id="th_defaultMoveForum" display_order="20"/>
+    </option>
+    <option option_id="th_defaultMoveForum_nodeId" edit_format="callback" data_type="string" can_backup="1">
+      <default_value/>
+      <edit_format_params>XenForo_Option_ForumChooser::renderOption</edit_format_params>
+      <sub_options/>
+      <relation group_id="th_defaultMoveForum" display_order="10"/>
+    </option>
+  </optiongroups>
+  <permissions>
+    <permission_groups/>
+    <permissions/>
+    <interface_groups/>
+  </permissions>
+  <phrases>
+    <phrase title="option_group_th_defaultMoveForum" version_id="1416063425" version_string="1.0.0"><![CDATA[Default Move Forum by ThemeHouse]]></phrase>
+    <phrase title="option_group_th_defaultMoveForum_description" version_id="1416063425" version_string="1.0.0"><![CDATA[Options for the Default Move Forum add-on.]]></phrase>
+    <phrase title="option_th_defaultMoveForum_forceOption" version_id="1416063425" version_string="1.0.0"><![CDATA[Force Option]]></phrase>
+    <phrase title="option_th_defaultMoveForum_forceOption_explain" version_id="1416063425" version_string="1.0.0"><![CDATA[If selected members will not be able to choose the destination forum on the front end.]]></phrase>
+    <phrase title="option_th_defaultMoveForum_nodeId" version_id="1416063425" version_string="1.0.0"><![CDATA[Default Forum]]></phrase>
+    <phrase title="option_th_defaultMoveForum_nodeId_explain" version_id="1416063425" version_string="1.0.0"><![CDATA[This node will be pre-selected when moving threads to another forum.]]></phrase>
+  </phrases>
+  <route_prefixes/>
+  <style_properties/>
+  <templates>
+    <template title="th_node_chooser_defaultmoveforum" version_id="1416863675" version_string="1.0.0"><![CDATA[<xen:if is="{$xenOptions.th_defaultMoveForum_forceOption}">
+	<dt><label for="ctrl_node_id">{xen:phrase destination_forum}:</label></dt>
+	<dd>
+		{$nodeOptions.{$xenOptions.th_defaultMoveForum_nodeId}.title}
+	</dd>
+<xen:else />
+	<dt><label for="ctrl_node_id">{xen:phrase destination_forum}:</label></dt>
+	<dd>
+		<select name="node_id" id="ctrl_node_id" class="textCtrl selectForum">
+		<xen:foreach loop="$nodeOptions" value="$node">
+			<option value="{$node.node_id}" {xen:selected '{$node.node_id} == {$xenOptions.th_defaultMoveForum_nodeId}'}
+				{xen:if "{$node.node_type_id} != 'Forum'", 'disabled="disabled"'}>{xen:string repeat, '&nbsp; ', $node.depth}{$node.title}</option>
+		</xen:foreach>
+		</select>
+	</dd>
+</xen:if>]]></template>
+  </templates>
+  <public_template_modifications>
+    <modification template="footer" modification_key="th_copyrightNotice_defaultMoveForum" description="Copyright notice for Default Move Forum by ThemeHouse" execution_order="1" enabled="1" action="callback">
+      <find><![CDATA[/{xen:phrase (?:xenforo|extra)_copyright}/]]></find>
+      <replace><![CDATA[ThemeHouse_Listener_InitDependencies::copyrightNotice]]></replace>
+    </modification>
+    <modification template="footer" modification_key="th_copyrightNotice_defaultMoveLoc" description="Copyright notice for [⌂] Default Move Forum" execution_order="1" enabled="1" action="callback">
+      <find><![CDATA[/{xen:phrase (?:xenforo|extra)_copyright}/]]></find>
+      <replace><![CDATA[ThemeHouse_Listener_InitDependencies::copyrightNotice]]></replace>
+    </modification>
+    <modification template="helper_new_existing_thread_chooser" modification_key="th_helperNewExistingThread_defaultMoveForum" description="Selects default forum from options" execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#(<dt><label for="ctrl_node_id">.*</dd>)#Us]]></find>
+      <replace><![CDATA[<xen:if is="{$xenOptions.th_defaultMoveForum_nodeId}">
+<xen:include template="th_node_chooser_defaultmoveforum">
+<xen:map from="$nodes" to="$nodeOptions" />
+</xen:include>
+<xen:else />
+${0}
+</xen:if>]]></replace>
+    </modification>
+    <modification template="thread_fields_move" modification_key="th_threadFieldsMove_defaultMoveForum" description="Selects default forum from options" execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#(<dt><label for="ctrl_node_id">.*</dd>)#Us]]></find>
+      <replace><![CDATA[<xen:if is="{$xenOptions.th_defaultMoveForum_nodeId}">
+<xen:include template="th_node_chooser_defaultmoveforum" />
+<xen:else />
+${0}
+</xen:if>]]></replace>
+    </modification>
+  </public_template_modifications>
+  <bb_code_media_sites/>
+  <bb_codes/>
+</addon>
